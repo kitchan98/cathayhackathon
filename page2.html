@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Companion</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <img src="v67_909.png" alt="Logo" class="logo">
+    </header>
+
+    <main>
+        <section class="chat-section">
+            <div class="thread" id="thread">
+                <div class="welcome-section">
+                    <img src="v79_66.png" alt="Chatbot Avatar" class="chatbot-avatar">
+                    <h1>Hello, Ms Chan</h1>
+                    <p>I am your AI travel companion CathWay. I can help you with anything about traveling and offer you
+                        tailored itineraries!</p>
+                    <p class="disclaimer">AI Travel Planner is still in beta version and may provide incorrect
+                        information<br>By
+                        starting a conversation you agree to the <u>Term and Condition</u></p>
+                </div>
+
+                <div class=bridge>
+                    <hr class=line>
+                    <h3 class="center">11/11/2023 14:53 PM</h3>
+                </div>
+
+                <div class="noborder-box" id="noborder-box">
+                    <img src="v79_66.png" alt="Chat Icon" class="chat-icon" />
+                    <div class="chatBox" id="chatBox">
+                        <h2>What kind of travel do you prefer?</h2>
+                        <div class="button-group">
+                            <button class="travleButton" id="adventureSeekerButton">Adventure Seeker</button>
+                            <button class="travleButton">Cultural Explorer</button>
+                            <button class="travleButton">Family-Friendly Travller</button>
+                            <button class="travleButton">Urban Experience</button>
+                            <button class="travleButton">Adventure Travel</button>
+                            <button class="travleButton">Relaxation and Wellness</button>
+                        </div>
+                        <div class="bottom-links">
+                            <button>Refresh</button>
+                            <button id="goBack" onclick="goToNextPage()">Go Back</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Write something to ask your AI travel companion.">
+                <button class="send-button" id="getAnswerButton" onclick="getAnswer()">➤</button>
+                <button class="schedule-button" onclick="openPopup()">My Travel Schedule</button>
+            </div>
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closePopup()">&times;</span>
+                    <div class="date-nav">
+                        <button class="nav-button prev">&lt;</button>
+                        <div class="date-item active">Dec 21</div>
+                        <div class="date-item">Dec 22</div>
+                        <div class="date-item">Dec 23</div>
+                        <div class="date-item">Dec 24</div>
+                        <div class="date-item">Dec 25</div>
+                        <button class="nav-button next">&gt;</button>
+                    </div>
+                    <div id="card" class="card">
+                        <div class="card-time">12:20 p.m.</div>
+                        <div class="card-icon"><i class="fas fa-plane-departure"></i></div>
+                        <div class="card-info">
+                            <div class="card-title">Flight (Departure)</div>
+                            <div class="card-subtitle">Hong Kong Cathay Airport</div>
+                        </div>
+                        <div class="card-manage">Manage booking →</div>
+                    </div>
+                    <div id="card" class="card">
+                        <div class="card-icon"><i class="fas fa-hotel"></i></div>
+                        <div class="card-info">
+                            <div class="card-title">Reinassance Hotel</div>
+                            <div class="card-title">4 Days 3 Nights</div>
+                            <div class="card-subtitle">Japan, Tokyo</div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="#" class="card-action">Book now →</a>
+                            <a href="#" class="card-action">Check on map →</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API_KEY = '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';
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var buttons = document.querySelectorAll('.travleButton');
+            buttons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    document.getElementById('userInput').value = button.textContent;
+                });
+            });
+        });
+
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'aiBox';
+        loadingIndicator.innerHTML = `
+        <img src="v79_66.png" class="chatImg"/>
+        <p class="aiMessage">AI is typing<span class="typing-dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span></p>`;
+
+
+        function goToNextPage() {
+            window.location.href = "page1.html";
+        }
+
+
+        async function getAnswer() {
+            const userInput = document.getElementById('userInput').value;
+            const button = document.getElementById('getAnswerButton');
+            const thread = document.getElementById('thread');
+            const card = document.getElementById('card');
+
+            function scrollToBottom() {
+                thread.scrollTop = thread.scrollHeight;
+            }
+
+            if (!userInput.trim()) {
+                alert('Please enter a question');
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = 'Loading...';
+            thread.innerHTML += `<p class="userMessage">${userInput}</p>`;
+            thread.appendChild(loadingIndicator);
+            setTimeout(scrollToBottom, 0);
+
+            fetch('http://localhost:5501/getAnswer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                credentials: "include",
+                body: JSON.stringify({ userInput }),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Display AI's answer in chat box
+                    loadingIndicator.remove()
+                    thread.innerHTML += `<div class="aiBox"><img src="v79_66.png" class="chatImg"/><p class="aiMessage">${data.answer}</p></div>`;
+                })
+                .catch(error => {
+                    loadingIndicator.remove()
+                    console.error('Fetch error:', error);
+                    thread.innerHTML += `<div class="aiBox"><img src="v79_66.png" class="chatImg"/><p class="aiMessage">An error occurred. Please try again.</p></div>`;
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.textContent = 'Get Answer';
+                    document.getElementById('userInput').value = '';
+                });
+        }
+
+        function openPopup() {
+            var modal = document.getElementById("myModal");
+            modal.style.display = "block";
+        }
+
+        function closePopup() {
+            var modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            var modal = document.getElementById("myModal");
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.querySelectorAll('.date-item').forEach(item => {
+            item.addEventListener('click', function () {
+                // Remove 'active' class from all date items and hide the card
+                document.querySelectorAll('.date-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+
+                this.classList.add('active');
+
+                const card = document.querySelector('.card');
+
+                if (this.textContent.trim() === 'Dec 21') {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Event listeners for the navigation buttons to scroll through dates
+        document.querySelector('.nav-button.prev').addEventListener('click', function () {
+            // Logic to go to previous dates
+        });
+
+        document.querySelector('.nav-button.next').addEventListener('click', function () {
+            // Logic to go to next dates
+        });
+
+        // ...
+
+        // Add this at the beginning of your script to initially hide the card
+        document.addEventListener("DOMContentLoaded", function () {
+            // Initially hide the card
+            const initialCardDisplay = document.querySelector('.date-item.active').textContent.trim() === 'Dec 21' ? 'block' : 'none';
+            document.querySelector('.card').style.display = initialCardDisplay;
+
+            // ... rest of your existing DOMContentLoaded event
+        });
+
+        /* Create function to extract key words from openai text response*/
+        function extractDetails(text) {
+            const datePattern = /Date: (.*?) Activity:/g;
+            const activityPattern = /Activity: (.*?) (?:Activity:|Meal:)/g;
+            const mealPattern = /Meal: (.*?) (?:Meal:|Accommodation:)/g;
+            const accommodationPattern = /Accommodation: (.*?) (?:Date:|$)/g;
+
+            function extractMatches(pattern) {
+                let match;
+                const matches = [];
+                while ((match = pattern.exec(text)) !== null) {
+                    matches.push(match[1].trim());
+                }
+                return matches;
+            }
+
+            const dates = extractMatches(datePattern);
+            const activities = extractMatches(activityPattern);
+            const meals = extractMatches(mealPattern);
+            const accommodations = extractMatches(accommodationPattern);
+
+            return { dates, activities, meals, accommodations };
+        }
+
+    </script>
+
+</body>
+
+</html>
