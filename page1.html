@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Companion</title>
+    <link rel="stylesheet" href="styles1.css">
+</head>
+
+<body>
+    <header>
+        <img src="v67_909.png" alt="Logo" class="logo">
+    </header>
+
+    <div>
+        <img src="header.png" class ="pic">
+        <img src="Frame 2609337 (1).png" class ="pic2">
+    </div>
+
+    <main>
+        <div class="button-container"></div>
+            <button>Start Planning</button>
+
+        <div id="recommendations"></div>
+    </main>
+</body>
+<script>
+    const button = document.querySelector('button');
+    button.addEventListener('click', event => {
+        window.location.href = 'page2.html';
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const resp = urlParams.get('gen');
+
+    document.getElementById('recommendations').innerHTML = resp;
+
+</script>
+
+
+</html>
